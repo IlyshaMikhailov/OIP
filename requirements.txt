@@ -1,0 +1,4 @@
+requests==2.31.0
+beautifulsoup4==4.12.3
+pymorphy2==0.9.1
+pymorphy2-dicts-ru==2.4.417127.3712498

@@ -34,8 +34,8 @@ pip install -r requirements.txt
 
 **Запуск:**
 ```bash
-  cd task1/crawler
-  python crawler.py
+cd task1/crawler
+python crawler.py
 ```
 ---
 ## Task 2 — Токенизация и лемматизация 
@@ -51,8 +51,8 @@ task1/output/pages/
 **Запуск:**
 
 ```bash
-  cd task2/tokenizer
-  python tokenizer.py
+cd task2/tokenizer
+python tokenizer.py
 ```
 ---
 ## Task 3 — Инвертированный индекс и булев поиск
@@ -71,8 +71,8 @@ task3/output/inverted_index.json, task3/output/inverted_index.txt
 **Запуск (булев поиск):**
 
 ```bash
-    cd task3/search
-    python boolean_search.py
+cd task3/search
+python boolean_search.py
 ```
 ---
 ## Task 4 — TF‑IDF 
@@ -85,6 +85,6 @@ task4/output/tfidf_terms/, task4/output/tfidf_lemmas/
 **Запуск:**
 
 ```bash
-  cd task4/tfidf
-  python tfidf.py
+cd task4/tfidf
+python tfidf.py
 ```

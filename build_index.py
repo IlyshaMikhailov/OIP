@@ -1,56 +1,62 @@
 import os
-import re
 import json
+import re
 from collections import defaultdict
 
-TOKENS_DIR = "tokens_pages"
+LEMMAS_DIR = "lemmas_pages"
 OUT_INDEX_JSON = "inverted_index.json"
 OUT_INDEX_TXT = "inverted_index.txt"
 
-DOCNUM_RE = re.compile(r"(\d+)")  # достанем 001 из page_001.tokens.txt
+DOCNUM_RE = re.compile(r"(\d+)")
 
 def extract_doc_num(fname: str) -> int:
-    """
-    Ожидаем имена вида page_001.tokens.txt (или любые, где есть число).
-    Вернём int: 1..100
-    """
+    """page_001.lemmas.txt -> 1"""
     m = DOCNUM_RE.search(fname)
     if not m:
-        raise ValueError(f"Не могу извлечь номер документа из имени файла: {fname}")
+        raise ValueError(f"Не могу извлечь номер документа: {fname}")
     return int(m.group(1))
 
-def main():
-    index = defaultdict(set)  # term -> set(int docNum)
+def parse_lemma_line(line: str):
+    parts = line.strip().split()
+    if len(parts) < 1:
+        return None
+    lemma = parts[0]
+    forms = parts[1:]  # не используем, но для полноты
+    return lemma, forms
 
-    files = sorted([f for f in os.listdir(TOKENS_DIR) if f.endswith(".tokens.txt")])
+def main():
+    index = defaultdict(set)  # lemma -> set(doc_num)
+
+    files = sorted([f for f in os.listdir(LEMMAS_DIR) if f.endswith(".lemmas.txt")])
     if not files:
-        raise SystemExit(f"Нет файлов *.tokens.txt в папке {TOKENS_DIR}")
+        raise SystemExit(f"Нет *.lemmas.txt в папке {LEMMAS_DIR}")
 
     for fname in files:
         doc_num = extract_doc_num(fname)
-        path = os.path.join(TOKENS_DIR, fname)
+        path = os.path.join(LEMMAS_DIR, fname)
 
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
-                term = line.strip()
-                if not term:
+                parsed = parse_lemma_line(line)
+                if not parsed:
                     continue
-                index[term].add(doc_num)
+                lemma, _ = parsed
+                index[lemma].add(doc_num)
 
-    # JSON: ключи-термины, значения — отсортированные списки int
-    index_json = {term: sorted(index[term]) for term in index}
+    # JSON: {"лемма": [1, 5, 10], ...}
+    index_json = {lemma: sorted(index[lemma]) for lemma in sorted(index.keys())}
 
     with open(OUT_INDEX_JSON, "w", encoding="utf-8") as f:
         json.dump(index_json, f, ensure_ascii=False, indent=2, sort_keys=True)
 
-    # TXT (не обязателен): "term: 1 5 10"
+    # TXT: "лемма: 1 5 10"
     with open(OUT_INDEX_TXT, "w", encoding="utf-8") as f:
-        for term in sorted(index.keys()):
-            nums = sorted(index[term])
-            f.write(f"{term}: " + " ".join(map(str, nums)) + "\n")
+        for lemma in sorted(index.keys()):
+            nums = sorted(index[lemma])
+            f.write(f"{lemma}: " + " ".join(map(str, nums)) + "\n")
 
-    doc_count = len({extract_doc_num(x) for x in files})
-    print(f"Готово: терминов={len(index_json)}, документов={doc_count}")
+    doc_count = len(files)
+    print(f"Готово: лемм={len(index_json)}, документов={doc_count}")
     print(f"Файлы: {OUT_INDEX_JSON}, {OUT_INDEX_TXT}")
 
 if __name__ == "__main__":

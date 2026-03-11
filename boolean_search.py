@@ -91,10 +91,12 @@ def search(query: str, index, all_docs):
     return eval_rpn(rpn, index, all_docs)
 
 def main():
-    index, all_docs = load_index()
+    with open(INDEX_JSON, "r", encoding="utf-8") as f:
+        idx = json.load(f)
+    index = {lemma: set(nums) for lemma, nums in idx.items()}
+    all_docs = set(range(1, 101))  # 1..100
 
     print("Булев поиск. Операторы: AND OR NOT, скобки ().")
-    print("Пример: (клеопатра AND цезарь) OR (антоний AND цицерон) OR помпей")
     print("Выход: список doc_id (например page_001).")
     print("Для выхода: пустая строка.\n")
 
@@ -109,6 +111,5 @@ def main():
                 print(d)
         except Exception as e:
             print(f"Ошибка: {e}")
-
 if __name__ == "__main__":
     main()
